@@ -1,0 +1,98 @@
+//********************************
+// https://codility.com/demo/results/demoCYRRCH-S8S/
+//*******************************
+
+using System;
+// you can also use other imports, for example:
+using System.Collections.Generic;
+using System.Linq;
+
+// you can use Console.WriteLine for debugging purposes, e.g.
+// Console.WriteLine("this is a debug message");
+
+class Solution {
+     Dictionary<int,bool> dic=new Dictionary<int,bool>();
+     HashSet<int> peaks=new HashSet<int>();
+     int lt=0;
+    public int solution(int[] A) {
+        // write your code in C# 6.0 with .NET 4.5 (Mono)
+        if(A.Length<3){return 0;}
+        int result=0;
+        lt=A.Length;
+        dic= GetDivisors(A.Length);
+        //foreach(KeyValuePair<int,bool> kv in dic){
+        // Console.WriteLine(kv.Key);   
+        //}
+        if(dic.Count==2){//A.Length is prime and should check the whole array once
+            if(HasAtleastOnePeak(A)){return 1;}
+            else{return 0;}
+        }
+        for(int i=1;i<A.Length-1;i++){
+            if(A[i-1]<A[i] && A[i]>A[i+1]){//peak at i
+            //Console.WriteLine("Peak={0}",i+1);
+                peaks.Add(i+1);
+            }
+        }
+        //int prevblock=1;
+        foreach(KeyValuePair<int,bool> kv in dic){
+         if(kv.Key!=1 && kv.Key!=2){
+           var currblocksize=kv.Key;
+           bool isvalid=IsBloackSizeValid(currblocksize);
+           //Console.WriteLine("isvalidsizeof({0})={1}",currblocksize,isvalid);
+          if(isvalid){result=lt/currblocksize;break;}
+         }
+        }
+        return result;
+    }
+    
+    private bool IsBloackSizeValid(int size){
+        int prevstart=0;
+        bool ValidBlockSize=true;
+        for(int i=size;i<=lt;i=i+size){
+            int j=prevstart+1;
+            bool ExistsinCurrBlock=false;
+            while(j<=i){
+               if(peaks.Contains(j)){ExistsinCurrBlock=true;break;} //
+               j++;
+           }
+           prevstart=i;
+           if(!ExistsinCurrBlock){ValidBlockSize=false; break;}
+        }
+        return ValidBlockSize;
+    }
+    
+    private bool HasAtleastOnePeak(int[] A){
+        bool ret=false;
+        for(int i=1;i<A.Length-1;i++){
+            if((A[i-1]<A[i]) && (A[i]>A[i+1])){//peak found
+                ret=true;
+                break;
+            }
+        }
+        return ret;
+    }
+    
+    private Dictionary<int,bool> GetDivisors(int n){
+     Dictionary<int,bool> dic=new Dictionary<int,bool>();
+     Dictionary<int,bool> dicSort=new Dictionary<int,bool>();
+     int i=1;
+     while(i*i<n){
+      if(n%i==0){
+            dic.Add(i,false);  
+            dic.Add(n/i,false);
+        }
+      i++;   
+     }
+        if(i*i==n){dic.Add(i,false);}
+        var list=dic.Keys.ToList();
+        list.Sort();
+        foreach(var key in list){
+            //if(key!=1 && key!=2)
+                dicSort.Add(key,dic[key]);
+        }
+        dic=null;
+        list=null;
+        return dicSort;
+    }
+}
+
